@@ -1,0 +1,56 @@
+import urllib.parse
+import requests
+
+# Variable de la URL base de la API de MapQuest
+main_api = "https://www.mapquestapi.com/directions/v2/route?"
+
+# Clave de API
+api_key = "a3lKu0VvPiXzpOqUOekKOSt3OoHfTIGn"
+
+# Unidad de medida
+unit = "k"
+
+# Idioma de la narrativa
+locale = "es_ES"
+
+# Crear un bucle para solicitar las ciudades de origen y destino
+while True:
+    origen = input("Ingrese Ciudad de Origen: ")
+    if origen.lower() == "s" or origen.lower() == "salida":
+        break
+
+    destino = input("Ingrese Ciudad de Destino: ")
+    if destino.lower() == "s" or destino.lower() == "salida":
+        break
+
+    # Crear la URL completa con los parámetros necesarios
+    params = {
+        "key": api_key,
+        "from": origen,
+        "to": destino,
+        "unit": unit,
+        "locale": locale
+    }
+    url = main_api + urllib.parse.urlencode(params)
+
+    # Obtener los datos JSON de la respuesta de la API
+    response = requests.get(url)
+    data = response.json()
+
+    # Extraer la información necesaria de los datos JSON
+    if data["info"]["statuscode"] == 0:
+        distance = data["route"]["distance"]
+        distance_decimal = round(distance, 1)
+        time = data["route"]["formattedTime"]
+        narrative = data["route"]["legs"][0]["maneuvers"]
+
+        # Imprimir la información del viaje
+        print("Distancia:", distance_decimal, "km")
+        print("Tiempo de viaje:", time)
+        print("Narrativa del viaje:")
+        for step in narrative:
+            print("-", step["narrative"])
+    else:
+        print("Se produjo un error en la solicitud. Por favor, vuelva a intentarlo.")
+
+    print()  # Agregar una línea en blanco para separar los resultados
